@@ -62,16 +62,16 @@ class EMGMM:
         if self.spherical:
             new_variances = np.einsum('nk, nkd, nkd -> k',
                                       tau,
-                                      X[:, np.newaxis, :] - self.mu,
-                                      X[:, np.newaxis, :] - self.mu) / (self.d * np.einsum('nk->k', tau))
+                                      X[:, np.newaxis, :] - new_mu,
+                                      X[:, np.newaxis, :] - new_mu) / (self.d * np.einsum('nk->k', tau))
             new_sigma = np.einsum('dfk->kdf',
                                   np.repeat(np.eye(self.d)[:, :, np.newaxis], self.K, axis=2) * new_variances)
 
         else:
             new_sigma = np.einsum('dfk -> kdf', np.einsum('nk, nkd, nkf -> dfk',
                                                           tau,
-                                                          X[:, np.newaxis, :] - self.mu,
-                                                          X[:, np.newaxis, :] - self.mu) / np.einsum('nk->k', tau))
+                                                          X[:, np.newaxis, :] - new_mu,
+                                                          X[:, np.newaxis, :] - new_mu) / np.einsum('nk->k', tau))
 
         return new_pi, new_mu, new_sigma
 
@@ -122,6 +122,7 @@ class EMGMM:
                 return tau
 
     def log_likelihood(self, X):
+        # TODO: vectorize this
         n = X.shape[0]
         L = 0
 
